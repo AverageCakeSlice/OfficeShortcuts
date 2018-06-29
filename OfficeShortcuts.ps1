@@ -1,7 +1,7 @@
 #OfficeShortcuts -- Creates shortcuts for the main four Office 2016 applications.
 
 #Optional command-line parameters that can be passed to create icons for All (-a) icons, or a CUSTOM set of icons (-c)
-param([switch] $a, [switch] $c)
+param([switch] $a, [switch] $c, [switch] $h)
 
 #Creates a shortcut on the desktop that copies from the start menu shortcuts.
 function CreateOfficeDesktopShortcut([string] $ShortcutName)
@@ -9,11 +9,12 @@ function CreateOfficeDesktopShortcut([string] $ShortcutName)
     Copy-Item -Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\$ShortcutName.lnk" "$env:USERPROFILE\Desktop"
 }
 
+#Prints menu for selecting individual programs
 function Show-Menu
 {
      Clear-Host
      Write-Host "Select which items you would like placed on the desktop:"
-     
+
      Write-Host "1: Word"
      Write-Host "2: Excel"
      Write-Host "3: PowerPoint"
@@ -21,68 +22,88 @@ function Show-Menu
      Write-Host "5: Access"
      Write-Host "6: OneNote"
      Write-Host "7: Publisher"
+     Write-Host "8: Skype for Business"
      Write-Host "D: Press 'D' when done."
 }
 
+#Requests custom user input
 function GetCustomUserSelection()
 {
-    [string[]]$CustomSelection = @()
+    [string[]] $CustomSelectionGroup = @()
     do
     {
-        Clear-Host
         Show-Menu
-        Write-Host "You have selected: $CustomSelection"
-        $input = Read-Host "Please make a selection:"
-        switch($input)
+        Write-Host "You have selected: $CustomSelectionGroup"
+        $ProgramSelection = Read-Host "Please make a selection"
+        switch($ProgramSelection)
         {
             '1'{
-                $CustomSelection += "Word"
+                $CustomSelectionGroup += "Word*"
             }
             '2'{
-                $CustomSelection += "Excel"
+                $CustomSelectionGroup += "Excel*"
             }
             '3'{
-                $CustomSelection += "PowerPoint"
+                $CustomSelectionGroup += "PowerPoint*"
             }
             '4'{
-                $CustomSelection += "Outlook"
+                $CustomSelectionGroup += "Outlook*"
             }
             '5'{
-                $CustomSelection += "Access"
+                $CustomSelectionGroup += "Access*"
             }
             '6'{
-                $CustomSelection += "OneNote"
+                $CustomSelectionGroup += "OneNote*"
             }
             '7'{
-                CustomSelection += "Publisher"
+                $CustomSelectionGroup += "Publisher*"
+            }
+            '8'{
+                $CustomSelectionGroup += "Skype*"
             }
             'd'{
-                return
             }
         }
     }
-    until ($input -eq 'd')
-    "Now do something else"
+    until ($ProgramSelection -eq 'd')
+    $SelectedPrograms = $CustomSelectionGroup
+    $SelectedPrograms
 }
 
-#Loop through the array of Shortcut names, and create a shortcut with a matching alias
-function SelectOfficeShortcuts($arg1, $arg2)
+#Function that changes based on 
+function SelectOfficeShortcuts($All, $CustomSelectionGroup)
 {
-    [string[]] $OfficeProgramNames = @("Word", "Excel", "PowerPoint", "Outlook")
+    [string[]] $SelectedPrograms = @()
 
-    if ($a -eq $True)
+    if ($a)
     {
-        $OfficeProgramNames += "Access", "OneNote*", "Publisher"
+        $SelectedPrograms = @("Word*", "Excel*", "PowerPoint*", "Outlook*")
+        $SelectedPrograms += "Access*", "OneNote*", "Publisher*", "Skype*"
     }
-    elseif($c -eq $True)
+    elseif($c)
     {
-        $OfficeProgramNames = @()
-        GetCustomUserSelection $OfficeProgramNames
+        $SelectedPrograms = GetCustomUserSelection
     }
-    for ($i=0; $i -lt $OfficeProgramNames.Length; $i++)
+    elseif($h)
     {
-        CreateOfficeDesktopShortcut $OfficeProgramNames[$i]
+        Write-Host "`n========================= SYNTAX =========================`n"
+        Write-Host "Default    Copy Word, Excel, Powerpoint, and Outlook 2016"
+        Write-Host "     -a    Copy all shortcuts for Office 2016 products"
+        Write-Host "     -c    Copy a custom list of Office shortcuts, specified by the user"
+        Write-Host "     -h    Display help for this script"
+        exit
+    }
+    else {
+        $SelectedPrograms = @("Word*", "Excel*", "PowerPoint*", "Outlook*")
+    }
+
+    Write-Host "Got it! Copying shortcuts... $SelectedPrograms"
+    
+    for ($i=0; $i -lt $SelectedPrograms.Length; $i++)
+    {
+        CreateOfficeDesktopShortcut $SelectedPrograms[$i]
     }
 }
 
-SelectOfficeShortcuts($a, $c)
+#Run 
+SelectOfficeShortcuts($a, $c, $h)
