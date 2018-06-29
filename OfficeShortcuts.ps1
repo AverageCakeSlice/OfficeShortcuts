@@ -70,7 +70,7 @@ function GetCustomUserSelection()
     $SelectedPrograms
 }
 
-#Function that changes based on 
+#Function that changes based on the selected switches, defaults to the four most common office programs if no switch is input.
 function SelectOfficeShortcuts($All, $CustomSelectionGroup)
 {
     [string[]] $SelectedPrograms = @()
