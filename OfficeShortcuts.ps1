@@ -1,6 +1,6 @@
 #OfficeShortcuts -- Creates shortcuts for the main four Office 2016 applications.
 
-#Optional command-line parameters that can be passed to create icons for All (-a) icons, or a CUSTOM set of icons (-c)
+#Optional command-line parameters that can be passed to create icons for all (-a) icons, or a custom set of icons (-c)
 param([switch] $a, [switch] $c, [switch] $h)
 
 #Creates a shortcut on the desktop that copies from the start menu shortcuts.
@@ -71,13 +71,12 @@ function GetCustomUserSelection()
 }
 
 #Function that changes based on the selected switches, defaults to the four most common office programs if no switch is input.
-function SelectOfficeShortcuts($All, $CustomSelectionGroup)
+function SelectOfficeShortcuts([bool]$a, [bool]$c, [bool]$h)
 {
-    [string[]] $SelectedPrograms = @()
+    [string[]] $SelectedPrograms = @("Word*", "Excel*", "PowerPoint*", "Outlook*")
 
     if ($a)
     {
-        $SelectedPrograms = @("Word*", "Excel*", "PowerPoint*", "Outlook*")
         $SelectedPrograms += "Access*", "OneNote*", "Publisher*", "Skype*"
     }
     elseif($c)
@@ -94,7 +93,7 @@ function SelectOfficeShortcuts($All, $CustomSelectionGroup)
         exit
     }
     else {
-        $SelectedPrograms = @("Word*", "Excel*", "PowerPoint*", "Outlook*")
+        $SelectedPrograms
     }
 
     Write-Host "Got it! Copying shortcuts... $SelectedPrograms"
